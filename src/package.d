@@ -9,7 +9,7 @@ struct Match {
     size_t length;
 }
 
-enum Tag : string {
+enum Tag: string {
     Equal = "equal",
     Insert = "insert",
     Delete = "delete",
