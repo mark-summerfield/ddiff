@@ -47,7 +47,12 @@ class Diff(T) if (
     }
 }
 
-auto differ(T)(T a, T b) { return Diff!T(a, b); }
+auto differ(T)(T a, T b) if (
+        isForwardRange!T && // T is a range
+        is(typeof(T.init.front == T.init.front)) // Elements support ==
+        ) {
+    return new Diff!T(a, b);
+}
 
 unittest {
     import std.array;
