@@ -46,8 +46,8 @@ class Diff(T) if (
     private final void chainB() {
         foreach (i, element; b)
             b2j[element] ~= i;
-        auto len = b.length;
         int[E] popular; // key = element, value = 0 (used as a set)
+        auto len = b.length;
         if (len > 200) {
             auto popularLen = to!int(floor((to!double(len) / 100.0))) + 1;
             foreach (element, indexes; b2j)
@@ -56,6 +56,15 @@ class Diff(T) if (
             foreach (element; popular.byKey)
                 b2j.remove(element);
         }
+    }
+
+    final Match[] matches() {
+        immutable aLen = a.length;
+        immutable bLen = b.length;
+        size_t[] queue; // =[(0, aLen, 0, bLen)] i.e., list of 1 x 4-tuple
+        Match[] matches;
+
+        return matches;
     }
 }
 
