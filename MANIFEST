@@ -3,6 +3,11 @@ src/package.d
 dub.sdl
 st.sh
 
+
 ~/app/nim/diff/src/diff.nim
 ~/app/nim/diff/tests/test.nim
+~/app/rs/differ/src/differ.rs
+~/app/rs/differ/src/lib.rs
+~/app/rs/differ/src/structs.rs
+~/app/rs/differ/src/tests.rs
 ~/opt/python37/lib/python3.7/difflib.py

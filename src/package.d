@@ -28,6 +28,9 @@ class Diff(T) if (
         isForwardRange!T && // T is a range
         is(typeof(T.init.front == T.init.front)) // Elements support ==
         ) {
+    import std.conv: to;
+    import std.math: floor;
+
     alias E = ElementType!T;
 
     T a;
@@ -43,7 +46,16 @@ class Diff(T) if (
     private final void chainB() {
         foreach (i, element; b)
             b2j[element] ~= i;
-        // TODO
+        auto len = b.length;
+        int[E] popular; // key = element, value = 0 (used as a set)
+        if (len > 200) {
+            auto popularLen = to!int(floor((to!double(len) / 100.0))) + 1;
+            foreach (element, indexes; b2j)
+                if (indexes.length > popularLen)
+                    popular[element] = 0;
+            foreach (element; popular.byKey)
+                b2j.remove(element);
+        }
     }
 }
 
