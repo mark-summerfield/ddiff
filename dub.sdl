@@ -1,4 +1,4 @@
-name "diffrange"
+name "diffslice"
 description "A D implementation of Python's difflib sequence matcher"
 authors "Mark Summerfield"
 copyright "Copyright © 2020 Mark Summerfield. All rights reserved."
