@@ -22,8 +22,8 @@ enum Tag: string {
     Replace = "replace",
 }
 
-private alias Indexes = Tuple!(size_t, "aStart", size_t, "aEnd",
-                               size_t, "bStart", size_t, "bEnd");
+private alias Quad = Tuple!(size_t, "aStart", size_t, "aEnd",
+                            size_t, "bStart", size_t, "bEnd");
 
 private struct Match {
     size_t aStart;
@@ -57,8 +57,8 @@ private class Diff(R) if (
         auto len = b.length;
         if (len > 200) {
             auto popularLen = to!int(floor((to!double(len) / 100.0))) + 1;
-            foreach (element, indexes; b2j)
-                if (indexes.length > popularLen)
+            foreach (element, quad; b2j)
+                if (quad.length > popularLen)
                     popular.insert(element);
             foreach (element; popular)
                 b2j.remove(element);
@@ -71,30 +71,28 @@ private class Diff(R) if (
 
         immutable aLen = a.length;
         immutable bLen = b.length;
-        Indexes[] indexQueue = [Indexes(0, aLen, 0, bLen)];
+        Quad[] quads = [Quad(0, aLen, 0, bLen)];
         Match[] matches;
-        while (!indexQueue.empty) {
-            auto indexes = indexQueue.back();
-            indexQueue.popBack();
-            auto match = longestMatch(indexes);
+        while (!quads.empty) {
+            auto quad = quads.back();
+            quads.popBack();
+            auto match = longestMatch(quad);
             auto i = match.aStart;
             auto j = match.bStart;
             auto k = match.length;
             if (k > 0) {
                 matches ~= match;
-                if (indexes.aStart < i && indexes.bStart < j)
-                    indexQueue ~= Indexes(indexes.aStart, i,
-                                          indexes.bStart, j);
-                if (i + k < indexes.aEnd && j + k < indexes.bEnd)
-                    indexQueue ~= Indexes(i + k, indexes.aEnd,
-                                          j + k, indexes.bEnd);
+                if (quad.aStart < i && quad.bStart < j)
+                    quads ~= Quad(quad.aStart, i, quad.bStart, j);
+                if (i + k < quad.aEnd && j + k < quad.bEnd)
+                    quads ~= Quad(i + k, quad.aEnd, j + k, quad.bEnd);
             }
         }
         // TODO
         return matches;
     }
 
-    private final Match longestMatch(Indexes indexes) {
+    private final Match longestMatch(Quad quad) {
         Match match;
 
         return match;
