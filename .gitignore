@@ -39,9 +39,9 @@ GPLv3.txt
 .stack-work/
 *.cabal
 .dub/
-diffslice-test-library
-diffslice-test-library.exe
-libdiffslice.a
-libdiffslice.so
-diffslice.lib
-diffslice.dll
+ddiff-test-library
+ddiff-test-library.exe
+libddiff.a
+libddiff.so
+ddiff.lib
+ddiff.dll

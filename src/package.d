@@ -1,13 +1,17 @@
 // Copyright © 2020 Mark Summerfield. All rights reserved.
-module diffslice;
+module ddiff;
 
 import std.range: ElementType, front, isForwardRange;
 
-struct Match {
+struct Span {
+    Tag tag;
     size_t aStart;
     size_t bStart;
-    size_t length;
+    size_t aEnd;
+    size_t bEnd;
 }
+
+enum EmptySpan { Drop, Keep }
 
 enum Tag: string {
     Equal = "equal",
@@ -16,12 +20,10 @@ enum Tag: string {
     Replace = "replace",
 }
 
-struct Span {
-    Tag tag;
+private struct Match {
     size_t aStart;
     size_t bStart;
-    size_t aEnd;
-    size_t bEnd;
+    size_t length;
 }
 
 private class Diff(R) if (
@@ -58,7 +60,7 @@ private class Diff(R) if (
         }
     }
 
-    final Match[] matches() {
+    private final Match[] matches() {
         immutable aLen = a.length;
         immutable bLen = b.length;
         size_t[] queue; // =[(0, aLen, 0, bLen)] i.e., list of 1 x 4-tuple
@@ -67,48 +69,36 @@ private class Diff(R) if (
         return matches;
     }
 
-    final Span[] spans() {
+    final Span[] spans(EmptySpan emptySpan) {
         Span[] spans;
         // TODO
         return spans;
     }
 }
 
-auto matches(R)(R a, R b) if (
+auto spans(R)(R a, R b, EmptySpan emptySpan=EmptySpan.Drop) if (
         isForwardRange!R && // R is a range that can be iterated repeatedly
         is(typeof(R.init.front == R.init.front)) // Elements support ==
         ) {
     auto diff = new Diff!R(a, b);
-    return diff.matches();
-}
-
-auto spans(R)(R a, R b) if (
-        isForwardRange!R && // R is a range that can be iterated repeatedly
-        is(typeof(R.init.front == R.init.front)) // Elements support ==
-        ) {
-    auto diff = new Diff!R(a, b);
-    return diff.spans();
+    return diff.spans(emptySpan);
 }
 
 unittest {
     import std.array;
     import std.stdio: writeln;
 
-    writeln("unittest for the diffslice library.");
+    writeln("unittest for the ddiff library.");
 
     auto a1 = "one two three four";
     auto b1 = "one too tree four";
-    auto m1 = matches(a1.array, b1.array);
-    writeln("TODO matches", m1);
     auto s1 = spans(a1.array, b1.array);
-    writeln("TODO spans", s1);
+    writeln("TODO", s1);
 
     auto a2 = ["Tulips are yellow,", "Violets are blue,", "Agar is sweet,",
                "As are you."];
     auto b2 = ["Roses are red,", "Violets are blue,", "Sugar is sweet,",
                "And so are you."];
-    auto m2 = matches(a2, b2);
-    writeln("TODO matches", m2);
     auto s2 = spans(a2, b2);
-    writeln("TODO spans", s2);
+    writeln("TODO", s2);
 }

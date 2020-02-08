@@ -1,3 +1,7 @@
+# TODO
+#   R[E] => rbtree
+#   Use tuples
+
 src/package.d
 
 dub.sdl
