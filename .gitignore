@@ -39,9 +39,9 @@ GPLv3.txt
 .stack-work/
 *.cabal
 .dub/
-diffrange-test-library
-diffrange-test-library.exe
-libdiffrange.a
-libdiffrange.so
-diffrange.lib
-diffrange.dll
+diffslice-test-library
+diffslice-test-library.exe
+libdiffslice.a
+libdiffslice.so
+diffslice.lib
+diffslice.dll
