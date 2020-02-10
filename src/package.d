@@ -22,19 +22,12 @@ struct Span(E) {
     string toString() const pure @safe {
         import std.format: format;
 
-        char char4tag(Tag tag) {
-            final switch (tag) {
-            case Tag.Equal: return '=';
-            case Tag.Insert: return '+';
-            case Tag.Delete: return '-';
-            case Tag.Replace: return '%';
-            }
+        final switch (tag) {
+        case Tag.Equal: return format!"= %s"(a);
+        case Tag.Insert: return format!"+ %s"(b);
+        case Tag.Delete: return format!"- %s"(a);
+        case Tag.Replace: return format!"< %s |> %s"(a, b);
         }
-
-        auto stag = char4tag(tag);
-        if (tag == Tag.Equal)
-            return format!"%s <%s>"(stag, a);
-        return format!"%s <%s> → <%s>"(stag, a, b);
     }
 }
 
