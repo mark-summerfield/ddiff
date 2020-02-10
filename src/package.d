@@ -5,6 +5,14 @@ import std.container.rbtree: RedBlackTree;
 import std.range: ElementType, front, isForwardRange;
 import std.typecons: Tuple;
 
+auto spans(R)(R a, R b, EqualSpan equalSpan=EqualSpan.Drop) if (
+        isForwardRange!R && // R is a range that can be iterated repeatedly
+        is(typeof(R.init.front == R.init.front)) // Elements support ==
+        ) {
+    auto diff = new Diff!R(a, b);
+    return diff.spans(equalSpan);
+}
+
 struct Span(E) {
     Tag tag;
     E[] a;
@@ -173,14 +181,6 @@ private class Diff(R) if (
         }
         return spans;
     }
-}
-
-auto spans(R)(R a, R b, EqualSpan equalSpan=EqualSpan.Drop) if (
-        isForwardRange!R && // R is a range that can be iterated repeatedly
-        is(typeof(R.init.front == R.init.front)) // Elements support ==
-        ) {
-    auto diff = new Diff!R(a, b);
-    return diff.spans(equalSpan);
 }
 
 unittest {
