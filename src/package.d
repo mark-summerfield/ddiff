@@ -2,11 +2,12 @@
 module ddiff;
 
 import std.container.rbtree: RedBlackTree;
-import std.range: ElementType, front, isForwardRange;
+import std.range: ElementType, front, hasSlicing, isForwardRange;
 import std.typecons: Tuple;
 
 auto spans(R)(R a, R b, EqualSpan equalSpan=EqualSpan.Drop) if (
         isForwardRange!R && // R is a range that can be iterated repeatedly
+        hasSlicing!R &&
         is(typeof(R.init.front == R.init.front)) // Elements support ==
         ) {
     auto diff = new Diff!R(a, b);
@@ -32,8 +33,8 @@ struct Span(E) {
 
         auto stag = char4tag(tag);
         if (tag == Tag.Equal)
-            return format!"%s «%s»"(stag, a);
-        return format!"%s «%s» → «%s»"(stag, a, b);
+            return format!"%s <%s>"(stag, a);
+        return format!"%s <%s> → <%s>"(stag, a, b);
     }
 }
 
@@ -59,6 +60,7 @@ private struct Match {
 
 private class Diff(R) if (
         isForwardRange!R && // R is a range that can be iterated repeatedly
+        hasSlicing!R &&
         is(typeof(R.init.front == R.init.front)) // Elements support ==
         ) {
     import std.conv: to;
@@ -199,75 +201,4 @@ private class Diff(R) if (
         }
         return spans;
     }
-}
-
-unittest {
-    import std.algorithm: map;
-    import std.array: array, join, split;
-    import std.format: format;
-    import std.stdio: write, writeln;
-    import std.uni: isWhite;
-
-    struct Test(T) {
-        T a;
-        T b;
-        EqualSpan equalSpan;
-        string[] expected;
-    }
-
-    bool check(T)(int n, T s, string[] e) {
-        assert(s.length == e.length, format("#%s length", n));
-        for (int i = 0; i < s.length; i++)
-            assert(s[i].toString == e[i], format("#%s span", n));
-        return true;
-    }
-
-    writeln("unittests for ddiff");
-
-    int n;
-
-    write("Test #", ++n, ": Drop ");
-    {
-        auto s = spans("one two three four".array,
-                       "one too tree four".array);
-        auto e = ["% «w» → «o»", "- «h» → «»"];
-        if (check(n, s, e))
-            writeln("OK");
-    }
-    write("         Keep ");
-    {
-        auto s = spans("one two three four".array,
-                       "one too tree four".array, EqualSpan.Keep);
-        auto e = ["= «one t»", "% «w» → «o»", "= «o t»", "- «h» → «»",
-                  "= «ree four»"];
-        if (check(n, s, e))
-            writeln("OK");
-    }
-
-    write("Test #", ++n, ": Drop ");
-    {
-        auto s = spans(
-            "the quick brown fox jumped over the lazy dogs".split!isWhite,
-            "the quick red fox jumped over the very busy dogs"
-            .split!isWhite);
-        auto e = ["% «[\"brown\"]» → «[\"red\"]»",
-                  "% «[\"lazy\"]» → «[\"very\", \"busy\"]»"];
-        if (check(n, s, e))
-            writeln("OK");
-    }
-    write("         Keep ");
-    {
-        auto s = spans(
-            "the quick brown fox jumped over the lazy dogs".split!isWhite,
-            "the quick red fox jumped over the very busy dogs"
-            .split!isWhite, EqualSpan.Keep);
-        auto e = ["= «[\"the\", \"quick\"]»",
-                  "% «[\"brown\"]» → «[\"red\"]»",
-                  "= «[\"fox\", \"jumped\", \"over\", \"the\"]»",
-                  "% «[\"lazy\"]» → «[\"very\", \"busy\"]»",
-                  "= «[\"dogs\"]»"];
-        if (check(n, s, e))
-            writeln("OK");
-    }
-
 }

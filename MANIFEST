@@ -1,4 +1,5 @@
 src/package.d
+src/tests.d
 
 dub.sdl
 st.sh
