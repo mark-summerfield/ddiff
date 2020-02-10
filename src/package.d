@@ -17,6 +17,24 @@ struct Span(E) {
     Tag tag;
     E[] a;
     E[] b;
+
+    string toString() const pure @safe {
+        import std.format: format;
+
+        char char4tag(Tag tag) {
+            final switch (tag) {
+            case Tag.Equal: return '=';
+            case Tag.Insert: return '+';
+            case Tag.Delete: return '-';
+            case Tag.Replace: return '%';
+            }
+        }
+
+        auto stag = char4tag(tag);
+        if (tag == Tag.Equal)
+            return format!"%s «%s»"(stag, a);
+        return format!"%s «%s» → «%s»"(stag, a, b);
+    }
 }
 
 enum EqualSpan { Drop, Keep }
@@ -185,50 +203,71 @@ private class Diff(R) if (
 
 unittest {
     import std.algorithm: map;
-    import std.array: array, join;
-    import std.stdio: writeln;
+    import std.array: array, join, split;
+    import std.format: format;
+    import std.stdio: write, writeln;
+    import std.uni: isWhite;
 
-    writeln("unittest for the ddiff library.");
-
-    string strForSpan(S)(S span) const pure @safe {
-        import std.format: format;
-
-        char char4tag(Tag tag) {
-            final switch (tag) {
-            case Tag.Equal: return '=';
-            case Tag.Insert: return '+';
-            case Tag.Delete: return '-';
-            case Tag.Replace: return '%';
-            }
-        }
-
-        auto stag = char4tag(span.tag);
-        if (span.tag == Tag.Equal)
-            return format!"%s \"%s\""(stag, span.a);
-        return format!"%s \"%s\" → \"%s\""(stag, span.a, span.b);
+    struct Test(T) {
+        T a;
+        T b;
+        EqualSpan equalSpan;
+        string[] expected;
     }
 
-    auto a1 = "one two three four";
-    auto b1 = "one too tree four";
-    writeln(a1);
-    writeln(b1);
-    auto s1 = spans(a1.array, b1.array);
-    writeln("TODO drop");
-    writeln(join(map!(s => strForSpan(s))(s1), '\n'));
-    s1 = spans(a1.array, b1.array, EqualSpan.Keep);
-    writeln("TODO keep");
-    writeln(join(map!(s => strForSpan(s))(s1), '\n'));
+    bool check(T)(int n, T s, string[] e) {
+        assert(s.length == e.length, format("#%s length", n));
+        for (int i = 0; i < s.length; i++)
+            assert(s[i].toString == e[i], format("#%s span", n));
+        return true;
+    }
 
-    auto a2 = ["Tulips are yellow,", "Violets are blue,", "Agar is sweet,",
-               "As are you."];
-    auto b2 = ["Roses are red,", "Violets are blue,", "Sugar is sweet,",
-               "And so are you."];
-    writeln(a2);
-    writeln(b2);
-    auto s2 = spans(a2, b2);
-    writeln("TODO drop");
-    writeln(join(map!(s => strForSpan(s))(s2), '\n'));
-    s2 = spans(a2, b2, EqualSpan.Keep);
-    writeln("TODO keep");
-    writeln(join(map!(s => strForSpan(s))(s2), '\n'));
+    writeln("unittests for ddiff");
+
+    int n;
+
+    write("Test #", ++n, ": Drop ");
+    {
+        auto s = spans("one two three four".array,
+                       "one too tree four".array);
+        auto e = ["% «w» → «o»", "- «h» → «»"];
+        if (check(n, s, e))
+            writeln("OK");
+    }
+    write("         Keep ");
+    {
+        auto s = spans("one two three four".array,
+                       "one too tree four".array, EqualSpan.Keep);
+        auto e = ["= «one t»", "% «w» → «o»", "= «o t»", "- «h» → «»",
+                  "= «ree four»"];
+        if (check(n, s, e))
+            writeln("OK");
+    }
+
+    write("Test #", ++n, ": Drop ");
+    {
+        auto s = spans(
+            "the quick brown fox jumped over the lazy dogs".split!isWhite,
+            "the quick red fox jumped over the very busy dogs"
+            .split!isWhite);
+        auto e = ["% «[\"brown\"]» → «[\"red\"]»",
+                  "% «[\"lazy\"]» → «[\"very\", \"busy\"]»"];
+        if (check(n, s, e))
+            writeln("OK");
+    }
+    write("         Keep ");
+    {
+        auto s = spans(
+            "the quick brown fox jumped over the lazy dogs".split!isWhite,
+            "the quick red fox jumped over the very busy dogs"
+            .split!isWhite, EqualSpan.Keep);
+        auto e = ["= «[\"the\", \"quick\"]»",
+                  "% «[\"brown\"]» → «[\"red\"]»",
+                  "= «[\"fox\", \"jumped\", \"over\", \"the\"]»",
+                  "% «[\"lazy\"]» → «[\"very\", \"busy\"]»",
+                  "= «[\"dogs\"]»"];
+        if (check(n, s, e))
+            writeln("OK");
+    }
+
 }
