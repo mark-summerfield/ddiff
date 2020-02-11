@@ -8,10 +8,11 @@
  * with a tag (equal, insert, delete, replace) and the two relevant
  * subslices.
  *
+ * See tests.d for some examples including Test #9 and #17.
+ *
  * Authors: Mark Summerfield, mark@qtrac.eu
  * License: Apache 2.0
- *
- * Copyright © 2020 Mark Summerfield. All rights reserved.
+ * Copyright: © 2020 Mark Summerfield. All rights reserved.
 */
 module ddiff;
 
@@ -19,6 +20,19 @@ import std.container.rbtree: RedBlackTree;
 import std.range: ElementType, front, hasSlicing, isForwardRange;
 import std.typecons: Tuple;
 
+/**
+ * Iterates two slices and diffs them.
+ * Params:
+ *  a = a forward sliceable range
+ *  b = a forward sliceable range
+ *  equalSpan = an EqualSpan
+ * Elements from a and b must be comparable for equality.
+ * If equalSpan is Drop (the default), then only Diff structs with Insert,
+ * Delete, or Replace tags will be returned; otherwise Diff structs
+ * covering all the input will be returned, so will additionally include
+ * Diff structs with Equal tags.
+ * Returns: A slice of Diff structs.
+*/
 auto diffs(R)(R a, R b, EqualSpan equalSpan=EqualSpan.Drop) if (
         isForwardRange!R && // R is a range that can be iterated repeatedly
         hasSlicing!R &&
@@ -28,6 +42,10 @@ auto diffs(R)(R a, R b, EqualSpan equalSpan=EqualSpan.Drop) if (
     return diff.diffs(equalSpan);
 }
 
+/**
+ * A difference with a tag to specify what the difference is and the two
+ * relevant subslices.
+*/
 struct Diff(E) {
     Tag tag;
     E[] a;
@@ -45,8 +63,16 @@ struct Diff(E) {
     }
 }
 
+/**
+ * Used to tell the diffs() function whether to include Diff structs in
+ * its output slice that have all possible tags, including the Equal tag
+ * (Keep), or only difference tags, Insert, Delete, Replace (Drop).
+*/
 enum EqualSpan { Drop, Keep }
 
+/**
+ * What kind of difference the Diff struct represents.
+*/
 enum Tag { Equal, Insert, Delete, Replace }
 
 private alias Quad = Tuple!(int, "aStart", int, "aEnd",

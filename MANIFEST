@@ -1,6 +1,9 @@
 src/package.d
 src/tests.d
 
+######### TODO
+# Add requirement to support < i.e., opCmp() as well as ==
+
 dub.sdl
 st.sh
 

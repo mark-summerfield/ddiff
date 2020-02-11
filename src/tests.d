@@ -167,4 +167,32 @@ unittest {
         if (check(name, spans, expected))
             writeln(" OK");
     }
+
+    struct Item {
+        int offset;
+        string name;
+
+        bool opEquals(const Item other) const {
+            return name == other.name && offset == other.offset;
+        }
+
+        string toString() const {
+            return format("Item(%s, \"%s\")", offset, name);
+        }
+    }
+    /*
+    {
+        auto name = "Test #17";
+        write(name);
+        auto spans = diffs([Item(1, "A"), Item(2, "B"), Item(3, "C"),
+                            Item(4, "D"), Item(5, "E"), Item(6, "F"),
+                            Item(7, "G")],
+                           [Item(1, "A"), Item(3, "C"), Item(2, "B"),
+                            Item(4, "D"), Item(5, "E"), Item(7, "G")]);
+        auto expected = [`+ Item(3, "C")`, `- Item(3, "C")`,
+                         `- Item(6, "F")`];
+        if (check(name, spans, expected))
+            writeln(" OK");
+    }
+    */
 }
