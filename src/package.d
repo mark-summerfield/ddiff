@@ -1,4 +1,18 @@
-// Copyright © 2020 Mark Summerfield. All rights reserved.
+/**
+ * This module provides a diffs() function.
+ *
+ * The function takes two slicable forward ranges of comparable objects
+ * (e.g., two slices of strings, two strings, two slices of ints) and
+ * diffs them using the Python difflib's sequence matcher algorithm.
+ * The function returns a (possibly empty) slice of Diff structs, each
+ * with a tag (equal, insert, delete, replace) and the two relevant
+ * subslices.
+ *
+ * Authors: Mark Summerfield, mark@qtrac.eu
+ * License: Apache 2.0
+ *
+ * Copyright © 2020 Mark Summerfield. All rights reserved.
+*/
 module ddiff;
 
 import std.container.rbtree: RedBlackTree;
