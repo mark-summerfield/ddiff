@@ -1,14 +1,14 @@
 /**
- * This module provides a diffs() function.
+ * This module provides a diff() function.
  *
- * The function takes two slicable forward ranges of comparable objects
- * (e.g., two slices of strings, two strings, two slices of ints) and
- * diffs them using the Python difflib's sequence matcher algorithm.
- * The function returns a (possibly empty) slice of Diff structs, each
- * with a tag (equal, insert, delete, replace) and the two relevant
- * subslices.
+ * The function takes two slicable forward ranges of < and == comparable
+ * objects (e.g., two slices of strings, two strings, two slices of ints,
+ * two slices of "items") and diffs them using a slightly simplified
+ * version of the Python difflib's sequence matcher algorithm. The
+ * function returns a (possibly empty) slice of Diff structs, each with a
+ * tag (equal, insert, delete, replace) and the two relevant subslices.
  *
- * See tests.d for some examples including Test #9 and #17.
+ * See tests.d for some examples including Test #17, #18 and #19.
  *
  * Authors: Mark Summerfield, mark@qtrac.eu
  * License: Apache 2.0
@@ -33,13 +33,14 @@ import std.typecons: Tuple;
  * Diff structs with Equal tags.
  * Returns: A slice of Diff structs.
 */
-auto diffs(R)(R a, R b, EqualSpan equalSpan=EqualSpan.Drop) if (
+auto diff(R)(R a, R b, EqualSpan equalSpan=EqualSpan.Drop) if (
         isForwardRange!R && // R is a range that can be iterated repeatedly
         hasSlicing!R &&
-        is(typeof(R.init.front == R.init.front)) // Elements support ==
+        is(typeof(R.init.front == R.init.front)) && // Elements support ==
+        is(typeof(R.init.front < R.init.front)) // Elements support <
         ) {
     auto diff = new Differ!R(a, b);
-    return diff.diffs(equalSpan);
+    return diff.diff(equalSpan);
 }
 
 /**
@@ -51,7 +52,7 @@ struct Diff(E) {
     E[] a;
     E[] b;
 
-    string toString() const pure @safe {
+    string toString() const {
         import std.format: format;
 
         final switch (tag) {
@@ -64,7 +65,7 @@ struct Diff(E) {
 }
 
 /**
- * Used to tell the diffs() function whether to include Diff structs in
+ * Used to tell the diff() function whether to include Diff structs in
  * its output slice that have all possible tags, including the Equal tag
  * (Keep), or only difference tags, Insert, Delete, Replace (Drop).
 */
@@ -94,7 +95,8 @@ private struct Match {
 private class Differ(R) if (
         isForwardRange!R && // R is a range that can be iterated repeatedly
         hasSlicing!R &&
-        is(typeof(R.init.front == R.init.front)) // Elements support ==
+        is(typeof(R.init.front == R.init.front)) && // Elements support ==
+        is(typeof(R.init.front < R.init.front)) // Elements support <
         ) {
     import std.conv: to;
     import std.math: floor;
@@ -211,7 +213,7 @@ private class Differ(R) if (
         return Match(bestI, bestJ, bestSize);
     }
 
-    private final Diff!E[] diffs(EqualSpan equalSpan) {
+    private final Diff!E[] diff(EqualSpan equalSpan) {
         Diff!E[] diffs;
         int i;
         int j;

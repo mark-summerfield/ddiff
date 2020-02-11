@@ -1,59 +1,50 @@
 // Copyright © 2020 Mark Summerfield. All rights reserved.
 
 unittest {
-    import ddiff: EqualSpan, diffs;
+    import ddiff: EqualSpan, diff;
     import std.algorithm: map;
     import std.array: array, join, split;
     import std.format: format;
     import std.range: empty;
     import std.stdio: write, writeln;
+    import std.string: splitLines;
     import std.uni: isWhite;
 
-    bool check(T)(const string name, const T spans,
+    void check(T)(const string name, const T diffs,
                   const string[] expected) {
-        assert(spans.length == expected.length, format("%s length", name));
-        for (int i = 0; i < spans.length; i++)
-            assert(spans[i].toString == expected[i], format("%s span",
+        write(name);
+        assert(diffs.length == expected.length, format("%s length", name));
+        for (int i = 0; i < diffs.length; i++)
+            assert(diffs[i].toString == expected[i], format("%s span",
                                                             name));
-        return true;
+        writeln(" OK");
     }
 
     writeln("unittests for ddiff");
     {
-        auto name = "Test #1";
-        write(name);
-        auto spans = diffs("one two three four".array,
-                           "one too tree four".array);
+        auto diffs = diff("one two three four".array,
+                          "one too tree four".array);
         auto expected = [`< w |> o`, `- h`];
-        if (check(name, spans, expected))
-            writeln(" OK");
+        check("Test #1", diffs, expected);
     }
     {
-        auto name = "Test #2 (keep)";
-        write(name);
-        auto spans = diffs("one two three four".array,
-                           "one too tree four".array, EqualSpan.Keep);
+        auto diffs = diff("one two three four".array,
+                          "one too tree four".array, EqualSpan.Keep);
         auto expected = [`= one t`, `< w |> o`, `= o t`, `- h`,
                          `= ree four`];
-        if (check(name, spans, expected))
-            writeln(" OK");
+        check("Test #2 (keep)", diffs, expected);
     }
     {
-        auto name = "Test #3";
-        write(name);
-        auto spans = diffs(
+        auto diffs = diff(
             "the quick brown fox jumped over the lazy dogs".split!isWhite,
             "the quick red fox jumped over the very busy dogs"
             .split!isWhite);
         auto expected = [`< ["brown"] |> ["red"]`,
                          `< ["lazy"] |> ["very", "busy"]`];
-        if (check(name, spans, expected))
-            writeln(" OK");
+        check("Test #3", diffs, expected);
     }
     {
-        auto name = "Test #4 (keep)";
-        write(name);
-        auto spans = diffs(
+        auto diffs = diff(
             "the quick brown fox jumped over the lazy dogs".split!isWhite,
             "the quick red fox jumped over the very busy dogs"
             .split!isWhite, EqualSpan.Keep);
@@ -62,110 +53,87 @@ unittest {
                          `= ["fox", "jumped", "over", "the"]`,
                          `< ["lazy"] |> ["very", "busy"]`,
                          `= ["dogs"]`];
-        if (check(name, spans, expected))
-            writeln(" OK");
+        check("Test #4 (keep)", diffs, expected);
     }
     {
-        auto name = "Test #5";
-        write(name);
-        auto spans = diffs("qabxcd".array, "abycdf".array);
+        auto diffs = diff("qabxcd".array, "abycdf".array);
         auto expected = [`- q`, `< x |> y`, `+ f`];
-        if (check(name, spans, expected))
-            writeln(" OK");
+        check("Test #5", diffs, expected);
     }
     {
-        auto name = "Test #6 (keep)";
-        write(name);
-        auto spans = diffs("private Thread currentThread;".array,
-                           "private volatile Thread currentThread;".array,
-                           EqualSpan.Keep);
+        auto diffs = diff("private Thread currentThread;".array,
+                          "private volatile Thread currentThread;".array,
+                          EqualSpan.Keep);
         auto expected = [`= privat`, `+ e volatil`,
                          `= e Thread currentThread;`];
-        if (check(name, spans, expected))
-            writeln(" OK");
+        check("Test #6 (keep)", diffs, expected);
     }
     {
-        auto name = "Test #7";
-        write(name);
-        auto spans = diffs("private Thread currentThread;".array,
-                           "private volatile Thread currentThread;".array);
+        auto diffs = diff("private Thread currentThread;".array,
+                          "private volatile Thread currentThread;".array);
         auto expected = [`+ e volatil`];
-        if (check(name, spans, expected))
-            writeln(" OK");
+        check("Test #7", diffs, expected);
     }
     {
-        auto name = "Test #8";
-        write(name);
-        auto spans = diffs("foo\nbar\nbaz\nquux".split!isWhite,
-                           "foo\nbaz\nbar\nquux".split!isWhite);
+        auto diffs = diff("foo\nbar\nbaz\nquux".split!isWhite,
+                          "foo\nbaz\nbar\nquux".split!isWhite);
         auto expected = [`+ ["baz"]`, `- ["baz"]`];
-        if (check(name, spans, expected))
-            writeln(" OK");
+        check("Test #8", diffs, expected);
     }
     {
-        auto name = "Test #9 (ints)";
-        write(name);
-        auto spans = diffs([1, 2, 3, 4, 5, 6], [2, 3, 5, 7]);
-        auto expected = [`- [1]`, `- [4]`, `< [6] |> [7]`];
-        if (check(name, spans, expected))
-            writeln(" OK");
+        auto diffs = diff(
+            splitLines("Tulips are yellow,\nViolets are blue,\n" ~
+                       "Agar is sweet,\nAs are you."),
+            splitLines("Roses are red,\nViolets are blue,\n" ~
+                       "Sugar is sweet,\nAnd so are you."));
+        auto expected = [
+            `< ["Tulips are yellow,"] |> ["Roses are red,"]`,
+            `< ["Agar is sweet,", "As are you."] ` ~
+            `|> ["Sugar is sweet,", "And so are you."]`];
+        check("Test #9 (lines)", diffs, expected);
     }
     {
-        auto name = "Test #10";
-        write(name);
-        auto spans = diffs("qabxcd".array, "abycdf".array);
+        auto diffs = diff("qabxcd".array, "abycdf".array);
         auto expected = [`- q`, `< x |> y`, `+ f`];
-        if (check(name, spans, expected))
-            writeln(" OK");
+        check("Test #10", diffs, expected);
     }
     {
-        auto name = "Test #11";
-        write(name);
-        auto spans = diffs("the quick brown fox".split!isWhite,
-                           "".split!isWhite);
+        auto diffs = diff("the quick brown fox".split!isWhite,
+                          "".split!isWhite);
         auto expected = [`- ["the", "quick", "brown", "fox"]`];
-        if (check(name, spans, expected))
-            writeln(" OK");
+        check("Test #11", diffs, expected);
     }
     {
-        auto name = "Test #12";
-        write(name);
-        auto spans = diffs("".split!isWhite,
-                           "the quick brown fox".split!isWhite);
+        auto diffs = diff("".split!isWhite,
+                          "the quick brown fox".split!isWhite);
         auto expected = [`+ ["the", "quick", "brown", "fox"]`];
-        if (check(name, spans, expected))
-            writeln(" OK");
+        check("Test #12", diffs, expected);
     }
     {
-        auto name = "Test #13";
-        write(name);
-        auto spans = diffs("abc".array, "".array);
+        auto diffs = diff("abc".array, "".array);
         auto expected = [`- abc`];
-        if (check(name, spans, expected))
-            writeln(" OK");
+        check("Test #13", diffs, expected);
     }
     {
-        auto name = "Test #14";
-        write(name);
-        auto spans = diffs("".array, "abc".array);
+        auto diffs = diff("".array, "abc".array);
         auto expected = [`+ abc`];
-        if (check(name, spans, expected))
-            writeln(" OK");
+        check("Test #14", diffs, expected);
     }
     {
-        auto name = "Test #15";
-        write(name);
-        auto spans = diffs("".array, "".array);
-        writeln(spans.empty ? " OK" : "FAIL");
+        write("Test #15");
+        auto diffs = diff("".array, "".array);
+        writeln(diffs.empty ? " OK" : "FAIL");
     }
     {
-        auto name = "Test #16";
-        write(name);
-        auto spans = diffs("quebec alpha bravo x-ray yankee".split!isWhite,
-                           "alpha bravo yankee charlie".split!isWhite);
+        auto diffs = diff("quebec alpha bravo x-ray yankee".split!isWhite,
+                          "alpha bravo yankee charlie".split!isWhite);
         auto expected = [`- ["quebec"]`, `- ["x-ray"]`, `+ ["charlie"]`];
-        if (check(name, spans, expected))
-            writeln(" OK");
+        check("Test #16", diffs, expected);
+    }
+    {
+        auto diffs = diff([1, 2, 3, 4, 5, 6], [2, 3, 5, 7]);
+        auto expected = [`- [1]`, `- [4]`, `< [6] |> [7]`];
+        check("Test #17 (ints)", diffs, expected);
     }
 
     struct Item {
@@ -176,23 +144,36 @@ unittest {
             return name == other.name && offset == other.offset;
         }
 
+        int opCmp(const Item other) const {
+            import std.algorithm: cmp;
+
+            return (name == other.name) ? offset - other.offset
+                                        : cmp(name, other.name);
+
+        }
+
         string toString() const {
             return format("Item(%s, \"%s\")", offset, name);
         }
     }
-    /*
     {
-        auto name = "Test #17";
-        write(name);
-        auto spans = diffs([Item(1, "A"), Item(2, "B"), Item(3, "C"),
-                            Item(4, "D"), Item(5, "E"), Item(6, "F"),
-                            Item(7, "G")],
-                           [Item(1, "A"), Item(3, "C"), Item(2, "B"),
-                            Item(4, "D"), Item(5, "E"), Item(7, "G")]);
-        auto expected = [`+ Item(3, "C")`, `- Item(3, "C")`,
-                         `- Item(6, "F")`];
-        if (check(name, spans, expected))
-            writeln(" OK");
+        auto diffs = diff([Item(1, "A"), Item(2, "B"), Item(3, "C"),
+                           Item(4, "D"), Item(5, "E"), Item(6, "F"),
+                           Item(7, "G")],
+                          [Item(1, "A"), Item(3, "C"), Item(2, "B"),
+                           Item(4, "D"), Item(5, "E"), Item(7, "G")]);
+        auto expected = [`+ [Item(3, "C")]`, `- [Item(3, "C")]`,
+                         `- [Item(6, "F")]`];
+        check("Test #18", diffs, expected);
     }
-    */
+    {
+        auto diffs = diff([Item(2, "quebec"), Item(4, "alpha"),
+                           Item(6, "bravo"), Item(7, "x-ray")],
+                          [Item(4, "alpha"), Item(6, "bravo"),
+                           Item(5, "tango"), Item(7, "hotel")]);
+        auto expected = [
+            `- [Item(2, "quebec")]`,
+            `< [Item(7, "x-ray")] |> [Item(5, "tango"), Item(7, "hotel")]`];
+        check("Test #19", diffs, expected);
+    }
 }
