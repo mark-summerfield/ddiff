@@ -5,16 +5,16 @@ import std.container.rbtree: RedBlackTree;
 import std.range: ElementType, front, hasSlicing, isForwardRange;
 import std.typecons: Tuple;
 
-auto spans(R)(R a, R b, EqualSpan equalSpan=EqualSpan.Drop) if (
+auto diffs(R)(R a, R b, EqualSpan equalSpan=EqualSpan.Drop) if (
         isForwardRange!R && // R is a range that can be iterated repeatedly
         hasSlicing!R &&
         is(typeof(R.init.front == R.init.front)) // Elements support ==
         ) {
-    auto diff = new Diff!R(a, b);
-    return diff.spans(equalSpan);
+    auto diff = new Differ!R(a, b);
+    return diff.diffs(equalSpan);
 }
 
-struct Span(E) {
+struct Diff(E) {
     Tag tag;
     E[] a;
     E[] b;
@@ -51,7 +51,7 @@ private struct Match {
     }
 }
 
-private class Diff(R) if (
+private class Differ(R) if (
         isForwardRange!R && // R is a range that can be iterated repeatedly
         hasSlicing!R &&
         is(typeof(R.init.front == R.init.front)) // Elements support ==
@@ -171,27 +171,27 @@ private class Diff(R) if (
         return Match(bestI, bestJ, bestSize);
     }
 
-    private final Span!E[] spans(EqualSpan equalSpan) {
-        Span!E[] spans;
+    private final Diff!E[] diffs(EqualSpan equalSpan) {
+        Diff!E[] diffs;
         int i;
         int j;
         foreach (match; matches()) {
-            auto span = Span!E(Tag.Equal, a[i .. match.aStart],
+            auto diff = Diff!E(Tag.Equal, a[i .. match.aStart],
                                           b[j .. match.bStart]);
             if (i < match.aStart && j < match.bStart)
-                span.tag = Tag.Replace;
+                diff.tag = Tag.Replace;
             else if (i < match.aStart)
-                span.tag = Tag.Delete;
+                diff.tag = Tag.Delete;
             else if (j < match.bStart)
-                span.tag = Tag.Insert;
-            if (span.tag != Tag.Equal)
-                spans ~= span;
+                diff.tag = Tag.Insert;
+            if (diff.tag != Tag.Equal)
+                diffs ~= diff;
             i = match.aStart + match.length;
             j = match.bStart + match.length;
             if (match.length && equalSpan == EqualSpan.Keep)
-                spans ~= Span!E(Tag.Equal, a[match.aStart .. i],
+                diffs ~= Diff!E(Tag.Equal, a[match.aStart .. i],
                                            b[match.bStart .. j]);
         }
-        return spans;
+        return diffs;
     }
 }
