@@ -118,7 +118,8 @@ private class Differ(R) if (
     }
 
     private void chainB() {
-        foreach (i, element; b)
+        // each!(t => b2j[t[0]] ~= t[1].to!int)(zip(b, iota(0, b.length)));
+        foreach (i, element; b) // I find this clearer
             b2j[element] ~= i.to!int;
         auto popular = new RedBlackTree!E;
         auto len = b.length;
