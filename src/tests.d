@@ -4,6 +4,7 @@ unittest {
     import ddiff: EqualSpan, diff;
     import std.algorithm: map;
     import std.array: array, join, split;
+    import std.datetime.stopwatch: AutoStart, StopWatch;
     import std.format: format;
     import std.range: empty;
     import std.stdio: write, writeln;
@@ -19,6 +20,8 @@ unittest {
                                                             name));
         writeln(" OK");
     }
+
+    auto watch = StopWatch(AutoStart.yes);
 
     writeln("unittests for ddiff");
     {
@@ -176,4 +179,6 @@ unittest {
             `< [Item(7, "x-ray")] |> [Item(5, "tango"), Item(7, "hotel")]`];
         check("Test #19", diffs, expected);
     }
+
+    writeln(watch.peek);
 }
