@@ -52,6 +52,10 @@ struct Diff(E) {
     E[] a;
     E[] b;
 
+    /**
+     * This method is primarily for testing.
+     * Returns: a string indicating the difference.
+    */
     string toString() const {
         import std.format: format;
 
