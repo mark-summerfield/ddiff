@@ -1,0 +1,6 @@
+src/package.d
+src/tests.d
+
+README.md
+dub.sdl
+st.sh
