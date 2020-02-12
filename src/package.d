@@ -48,9 +48,9 @@ auto diff(R)(R a, R b, EqualSpan equalSpan=EqualSpan.Drop) if (
  * relevant subslices.
 */
 struct Diff(E) {
-    Tag tag;
-    E[] a;
-    E[] b;
+    Tag tag; /// What kind of difference this is.
+    E[] a; /// The relevant subslice of the original `a` slice.
+    E[] b; /// The relevant subslice of the original `b` slice.
 
     /**
      * This method is primarily for testing.
@@ -117,13 +117,14 @@ private class Differ(R) if (
         chainB();
     }
 
-    private final void chainB() {
+    private void chainB() {
         foreach (i, element; b)
             b2j[element] ~= i.to!int;
         auto popular = new RedBlackTree!E;
         auto len = b.length;
         if (len > 200) {
-            auto popularLen = to!int(floor((to!double(len) / 100.0))) + 1;
+            immutable popularLen = to!int(floor((to!double(len) / 100.0)))
+                + 1;
             foreach (element, quad; b2j)
                 if (quad.length > popularLen)
                     popular.insert(element);
@@ -132,7 +133,7 @@ private class Differ(R) if (
         }
     }
 
-    private final Match[] matches() {
+    private Match[] matches() {
         import std.algorithm: sort;
         import std.array: back, empty;
         import std.range.primitives: popBack;
@@ -179,8 +180,7 @@ private class Differ(R) if (
         return nonAdjacent;
     }
 
-    private final Match longestMatch(Quad quad) {
-        Match match;
+    private Match longestMatch(Quad quad) {
         int bestI = quad.aStart;
         int bestJ = quad.bStart;
         int bestSize;
@@ -193,7 +193,7 @@ private class Differ(R) if (
                         continue;
                     if (j >= quad.bEnd)
                         break;
-                    int k = j2Len.get(j - 1, 0) + 1;
+                    immutable k = j2Len.get(j - 1, 0) + 1;
                     newJ2Len[j] = k;
                     if (k > bestSize) {
                         bestI = i - k + 1;
@@ -217,7 +217,7 @@ private class Differ(R) if (
         return Match(bestI, bestJ, bestSize);
     }
 
-    private final Diff!E[] diff(EqualSpan equalSpan) {
+    private Diff!E[] diff(EqualSpan equalSpan) {
         Diff!E[] diffs;
         int i;
         int j;

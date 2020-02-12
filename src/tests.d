@@ -143,6 +143,11 @@ unittest {
         int offset;
         string name;
 
+        size_t toHash() const @safe nothrow {
+            return typeid(offset).getHash(&offset) ^
+                   typeid(name).getHash(&name);
+        }
+
         bool opEquals(const Item other) const {
             return name == other.name && offset == other.offset;
         }
