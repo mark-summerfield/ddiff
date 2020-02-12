@@ -39,7 +39,7 @@ struct has a `Tag` indicating the kind of difference (`Equal`, `Insert`,
 `Delete`, `Replace`) and (in `a` and `b`), the relevant subslices of the
 two input ranges.
 
-See also `src/tests.d`.
+See also `src/tests.d`, especially the tests near the end.
 
 # License
 
