@@ -125,11 +125,9 @@ private class Differ(R) if (
         auto popular = new RedBlackTree!E;
         auto len = b.length;
         if (len > 200) {
-            immutable popularLen = to!int(floor((to!double(len) / 100.0)))
-                + 1;
+            immutable minLen = to!int(floor((to!double(len) / 100.0))) + 1;
             each!(kv => popular.insert(kv.key))(
-                filter!(kv => kv.value.length > popularLen)(
-                    b2j.byKeyValue));
+                filter!(kv => kv.value.length > minLen)(b2j.byKeyValue));
             each!(element => b2j.remove(element))(popular);
         }
     }
