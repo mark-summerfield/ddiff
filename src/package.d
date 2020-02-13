@@ -118,19 +118,19 @@ private class Differ(R) if (
     }
 
     private void chainB() {
-        // each!(t => b2j[t[0]] ~= t[1].to!int)(zip(b, iota(0, b.length)));
-        foreach (i, element; b) // I find this clearer
-            b2j[element] ~= i.to!int;
+        import std.algorithm: each, filter;
+        import std.range: iota, zip;
+
+        each!(t => b2j[t[0]] ~= t[1].to!int)(zip(b, iota(b.length)));
         auto popular = new RedBlackTree!E;
         auto len = b.length;
         if (len > 200) {
             immutable popularLen = to!int(floor((to!double(len) / 100.0)))
                 + 1;
-            foreach (element, quad; b2j)
-                if (quad.length > popularLen)
-                    popular.insert(element);
-            foreach (element; popular)
-                b2j.remove(element);
+            each!(kv => popular.insert(kv.key))(
+                filter!(kv => kv.value.length > popularLen)(
+                    b2j.byKeyValue));
+            each!(element => b2j.remove(element))(popular);
         }
     }
 
