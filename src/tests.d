@@ -1,7 +1,7 @@
 // Copyright © 2020 Mark Summerfield. All rights reserved.
 
 unittest {
-    import ddiff: EqualSpan, diff;
+    import qtrac.ddiff: diff, EqualSpan;
     import std.algorithm: map;
     import std.array: array, join, split;
     import std.datetime.stopwatch: AutoStart, StopWatch;
@@ -23,7 +23,7 @@ unittest {
 
     auto watch = StopWatch(AutoStart.yes);
 
-    writeln("unittests for ddiff");
+    writeln("unittests for qtrac.ddiff");
     {
         auto diffs = diff("one two three four".array,
                           "one too tree four".array);

@@ -14,7 +14,7 @@
  * License: Apache 2.0
  * Copyright: © 2020 Mark Summerfield. All rights reserved.
 */
-module ddiff;
+module qtrac.ddiff;
 
 import std.container.rbtree: RedBlackTree;
 import std.range: ElementType, front, hasSlicing, isForwardRange;

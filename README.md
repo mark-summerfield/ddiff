@@ -12,6 +12,8 @@ and `<`.
 
 For example, this code:
 ```d
+import qtrac.ddiff: diff, EqualSpan;
+
 auto diffs = diff(
     "the quick brown fox jumped over the lazy dogs".split!isWhite,
     "the quick red fox jumped over the very busy dogs".split!isWhite,
