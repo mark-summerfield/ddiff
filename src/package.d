@@ -1,5 +1,6 @@
 /**
- * This module provides a diff() function.
+ * This module implements the Python difflib module's sequence matcher and
+ * provides a diff() function.
  *
  * The function takes two slicable forward ranges of < and == comparable
  * objects (e.g., two slices of strings, two strings, two slices of ints,

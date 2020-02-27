@@ -1,6 +1,6 @@
 # ddiff
 
-A D implementation of the Python difflib module's sequence matcher.
+A D diff library that implements the Python difflib module's sequence matcher.
 
 ddiff is a library for finding the differences between two sequences.
 
