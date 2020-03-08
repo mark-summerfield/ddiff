@@ -17,7 +17,6 @@
 */
 module qtrac.ddiff;
 
-import std.container.rbtree: RedBlackTree;
 import std.range: ElementType, front, hasSlicing, isForwardRange;
 import std.typecons: Tuple;
 
@@ -122,14 +121,17 @@ private class Differ(R) if (
         import std.algorithm: each, filter;
         import std.range: iota, zip;
 
+        alias Unit = void[0];
+        enum unit = Unit.init;
+
         each!(t => b2j[t[0]] ~= t[1].to!int)(zip(b, iota(b.length)));
-        auto popular = new RedBlackTree!E;
+        Unit[E] popular;
         auto len = b.length;
         if (len > 200) {
             immutable minLen = to!int(floor((to!double(len) / 100.0))) + 1;
-            each!(kv => popular.insert(kv.key))(
+            each!(kv => popular[kv.key] = unit)(
                 filter!(kv => kv.value.length > minLen)(b2j.byKeyValue));
-            each!(element => b2j.remove(element))(popular);
+            each!(element => b2j.remove(element))(popular.byKey);
         }
     }
 
