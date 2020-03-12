@@ -45,3 +45,4 @@ libddiff.a
 libddiff.so
 ddiff.lib
 ddiff.dll
+dub.selections.json

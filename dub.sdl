@@ -1,8 +1,0 @@
-name "ddiff"
-description "A D implementation of Python's difflib sequence matcher"
-homepage "https://github.com/mark-summerfield/ddiff"
-authors "Mark Summerfield"
-copyright "Copyright © 2020 Mark Summerfield. All rights reserved."
-license "Apache-2.0"
-dependency "aaset" version="~>0.1.2"
-targetType "library"
