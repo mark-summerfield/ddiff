@@ -118,20 +118,18 @@ private class Differ(R) if (
     }
 
     private void chainB() {
+        import aaset: AAset;
         import std.algorithm: each, filter;
         import std.range: iota, zip;
 
-        alias Unit = void[0];
-        enum unit = Unit.init;
-
         each!(t => b2j[t[0]] ~= t[1].to!int)(zip(b, iota(b.length)));
-        Unit[E] popular;
+        AAset!E popular;
         auto len = b.length;
         if (len > 200) {
             immutable minLen = to!int(floor((to!double(len) / 100.0))) + 1;
-            each!(kv => popular[kv.key] = unit)(
+            each!(kv => popular.add(kv.key))(
                 filter!(kv => kv.value.length > minLen)(b2j.byKeyValue));
-            each!(element => b2j.remove(element))(popular.byKey);
+            each!(element => b2j.remove(element))(popular);
         }
     }
 
